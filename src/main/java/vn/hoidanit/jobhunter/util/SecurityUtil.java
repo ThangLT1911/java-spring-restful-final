@@ -19,10 +19,10 @@ public class SecurityUtil {
 
     private final JwtEncoder jwtEncoder;
 
-    @Value("${jobhunter.jwt.base64-secret}")
+    @Value("${hoidanit.jwt.base64-secret}")
     private String jwtKey;
 
-    @Value("${jobhunter.jwt.token-validity-in-seconds}")
+    @Value("${hoidanit.jwt.token-validity-in-seconds}")
     private long jwtExpiration;
 
     public SecurityUtil(JwtEncoder jwtEncoder) {
@@ -38,7 +38,7 @@ public class SecurityUtil {
                 .issuedAt(now)
                 .expiresAt(validity)
                 .subject(authentication.getName())
-                .claim("jobhunter", authentication)
+                .claim("hoidanit", authentication)
                 .build();
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
