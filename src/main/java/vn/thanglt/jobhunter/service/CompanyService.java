@@ -1,11 +1,15 @@
 package vn.thanglt.jobhunter.service;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.thanglt.jobhunter.domain.Company;
+import vn.thanglt.jobhunter.domain.dto.Meta;
+import vn.thanglt.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.thanglt.jobhunter.repository.CompanyRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,8 +24,20 @@ public class CompanyService {
         return this.companyRepository.save(company);
     }
 
-    public List<Company> handleGetAllCompany(Company company) {
-        return this.companyRepository.findAll();
+    public ResultPaginationDTO handleGetAllCompany(Specification<Company> specification, Pageable pageable) {
+        Page<Company> pageCompany = this.companyRepository.findAll(specification, pageable);
+        ResultPaginationDTO rs = new ResultPaginationDTO();
+        Meta meta = new Meta();
+
+        meta.setPage(pageCompany.getNumber() + 1);
+        meta.setPageSize(pageCompany.getSize());
+
+        meta.setPages(pageCompany.getTotalPages());
+        meta.setTotal(pageCompany.getTotalElements());
+
+        rs.setMeta(meta);
+        rs.setResult(pageCompany.getContent());
+        return rs;
     }
 
     public void handleDeleteCompany(long id) {
@@ -35,7 +51,7 @@ public class CompanyService {
 
     public Company handleUpdateCompany(Company c) {
         Company currentCompany = this.handleGetCompanyById(c.getId());
-        if(currentCompany != null) {
+        if (currentCompany != null) {
             currentCompany.setName(c.getName());
             currentCompany.setDescription(c.getDescription());
             currentCompany.setAddress(c.getAddress());

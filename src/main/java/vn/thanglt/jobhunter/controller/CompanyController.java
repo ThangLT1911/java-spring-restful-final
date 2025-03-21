@@ -1,16 +1,23 @@
 package vn.thanglt.jobhunter.controller;
 
+import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.thanglt.jobhunter.domain.Company;
+import vn.thanglt.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.thanglt.jobhunter.service.CompanyService;
+import vn.thanglt.jobhunter.util.annotation.ApiMessage;
 import vn.thanglt.jobhunter.util.error.IdInvalidException;
 
-import java.util.List;
+import java.util.Optional;
 
 @RestController
+@RequestMapping("api/v1")
 public class CompanyController {
     private final CompanyService companyService;
 
@@ -31,8 +38,10 @@ public class CompanyController {
     }
 
     @GetMapping("/companies")
-    public ResponseEntity<List<Company>> getAllCompany(Company company) {
-        return ResponseEntity.ok(this.companyService.handleGetAllCompany(company));
+    @ApiMessage("Get all company")
+    public ResponseEntity<ResultPaginationDTO> getAllCompany(@Filter Specification<Company> specification, Pageable pageable) {
+
+        return ResponseEntity.status(HttpStatus.OK).body(this.companyService.handleGetAllCompany(specification, pageable));
     }
 
     @PutMapping("/companies")
@@ -43,7 +52,7 @@ public class CompanyController {
 
     @DeleteMapping("/companies/{id}")
     public ResponseEntity<String> deleteCompany(@PathVariable("id") long id) throws IdInvalidException {
-        if(id >= 1500) {
+        if (id >= 1500) {
             throw new IdInvalidException("id khong lon hon hoac bang 1500");
         }
         this.companyService.handleDeleteCompany(id);

@@ -1,10 +1,14 @@
 package vn.thanglt.jobhunter.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.thanglt.jobhunter.domain.User;
+import vn.thanglt.jobhunter.domain.dto.Meta;
+import vn.thanglt.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.thanglt.jobhunter.repository.UserRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -28,8 +32,21 @@ public class UserService {
         return userOptional.orElse(null);
     }
 
-    public List<User> handleGetAllUser(User user) {
-        return this.userRepository.findAll();
+    public ResultPaginationDTO handleGetAllUser(Specification<User> specification, Pageable pageable) {
+        Page<User> pageUser = this.userRepository.findAll(specification, pageable);
+
+        ResultPaginationDTO rs = new ResultPaginationDTO();
+        Meta meta = new Meta();
+
+        meta.setPage(pageable.getPageNumber() + 1);
+        meta.setPageSize(pageable.getPageSize());
+
+        meta.setPages(pageUser.getTotalPages());
+        meta.setTotal(pageUser.getTotalElements());
+
+        rs.setMeta(meta);
+        rs.setResult(pageUser.getContent());
+        return rs;
     }
 
     public User handleUpdateUser(User reqUser) {
