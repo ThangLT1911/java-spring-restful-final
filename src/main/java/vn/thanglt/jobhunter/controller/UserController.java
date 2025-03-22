@@ -1,6 +1,8 @@
 package vn.thanglt.jobhunter.controller;
 
 import com.turkraft.springfilter.boot.Filter;
+import jakarta.persistence.Id;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -8,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import vn.thanglt.jobhunter.domain.User;
+import vn.thanglt.jobhunter.domain.dto.ResCreateUserDTO;
+import vn.thanglt.jobhunter.domain.dto.ResUpdateUserDTO;
+import vn.thanglt.jobhunter.domain.dto.ResUserDTO;
 import vn.thanglt.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.thanglt.jobhunter.service.UserService;
 import vn.thanglt.jobhunter.util.annotation.ApiMessage;
@@ -26,28 +31,38 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createNewUser(@RequestBody User postManUser) {
+    @ApiMessage("Create a new user")
+    public ResponseEntity<ResCreateUserDTO> createNewUser(@Valid @RequestBody User postManUser) throws IdInvalidException {
+        boolean isEmailExist = this.userService.checkEmailExist(postManUser.getEmail());
+        if (isEmailExist) {
+            throw new IdInvalidException("Email " + postManUser.getEmail() + " da ton tai, vui long su dung email khac");
+        }
         String hashPassword = this.passwordEncoder.encode(postManUser.getPassword());
         postManUser.setPassword(hashPassword);
         User newUser = this.userService.handleCreateUser(postManUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.convertToResCreateUserDTO(newUser));
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable("id") long id) throws IdInvalidException {
-        if (id >= 1500) {
-            throw new IdInvalidException("id khong lon hoac bang hon 1500");
+    @ApiMessage("Delete a user")
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") long id) throws IdInvalidException {
+        User currentUser = this.userService.handleFecthUserById(id);
+        if (currentUser == null) {
+            throw new IdInvalidException("Id " + id + " khong ton tai");
         }
+
         this.userService.handleDeleteUser(id);
-        // return ResponseEntity.status(HttpStatus.OK).body("id: " + id);
-        return ResponseEntity.ok("id: " + id);
+        return ResponseEntity.ok(null);
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUser(@PathVariable("id") long id) {
+    @ApiMessage("Get user by id")
+    public ResponseEntity<ResUserDTO> getUserById(@PathVariable("id") long id) throws IdInvalidException {
         User getUser = this.userService.handleFecthUserById(id);
-        // return ResponseEntity.status(HttpStatus.OK).body(getUser);
-        return ResponseEntity.ok(getUser);
+        if(getUser == null) {
+            throw new IdInvalidException("Id " + id + " khong ton tai");
+        }
+        return ResponseEntity.ok(this.userService.convertToResUserDTO(getUser));
     }
 
     @GetMapping("/users")
@@ -58,9 +73,12 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public ResponseEntity<User> updateUser(@RequestBody User updateUser) {
-        User updateUsers = this.userService.handleUpdateUser(updateUser);
-        // return ResponseEntity.status(HttpStatus.OK).body(updateUsers);
-        return ResponseEntity.ok(updateUsers);
+    @ApiMessage("Update a user")
+    public ResponseEntity<ResUpdateUserDTO> updateUser(@RequestBody User user) throws IdInvalidException {
+        User updateUser = this.userService.handleUpdateUser(user);
+        if (updateUser == null) {
+            throw new IdInvalidException("Id " + user.getId() + " khong ton tai");
+        }
+        return ResponseEntity.ok(this.userService.convertToResUpdateUserDTO(updateUser));
     }
 }
