@@ -1,7 +1,6 @@
 package vn.thanglt.jobhunter.controller;
 
 import com.turkraft.springfilter.boot.Filter;
-import jakarta.persistence.Id;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -59,7 +58,7 @@ public class UserController {
     @ApiMessage("Get user by id")
     public ResponseEntity<ResUserDTO> getUserById(@PathVariable("id") long id) throws IdInvalidException {
         User getUser = this.userService.handleFecthUserById(id);
-        if(getUser == null) {
+        if (getUser == null) {
             throw new IdInvalidException("Id " + id + " khong ton tai");
         }
         return ResponseEntity.ok(this.userService.convertToResUserDTO(getUser));

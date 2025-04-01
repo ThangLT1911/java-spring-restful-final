@@ -77,7 +77,6 @@ public class UserService {
         return this.userRepository.existsByEmail(email);
     }
 
-
     public ResCreateUserDTO convertToResCreateUserDTO(User user) {
         ResCreateUserDTO res = new ResCreateUserDTO();
 
@@ -118,5 +117,17 @@ public class UserService {
         res.setUpdatedAt(user.getUpdatedAt());
 
         return res;
+    }
+
+    public void updateUserToken(String email, String token) {
+        User currentUser = this.handleGetUserByUsername(email);
+        if (currentUser != null) {
+            currentUser.setRefreshToken(token);
+            this.userRepository.save(currentUser);
+        }
+    }
+
+    public User getUserByRefreshTokenAndEmail(String token, String email) {
+        return this.userRepository.findByRefreshTokenAndEmail(token, email);
     }
 }

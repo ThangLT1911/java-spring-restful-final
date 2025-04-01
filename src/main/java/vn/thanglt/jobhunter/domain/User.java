@@ -1,6 +1,5 @@
 package vn.thanglt.jobhunter.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -34,6 +33,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
     private String address;
+
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String refreshToken;
 
     private Instant createdAt;
