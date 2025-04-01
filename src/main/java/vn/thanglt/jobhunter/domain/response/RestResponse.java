@@ -1,4 +1,4 @@
-package vn.thanglt.jobhunter.domain;
+package vn.thanglt.jobhunter.domain.response;
 
 
 public class RestResponse<T> {
