@@ -1,8 +1,7 @@
-package vn.thanglt.jobhunter.domain.dto;
+package vn.thanglt.jobhunter.domain.response;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.thanglt.jobhunter.util.constant.GenderEnum;
 
@@ -10,15 +9,14 @@ import java.time.Instant;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class ResUserDTO {
+public class ResCreateUserDTO {
     private long id;
-    private String email;
     private String name;
+    private String email;
     private GenderEnum gender;
     private String address;
     private int age;
-    private Instant updatedAt;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     private Instant createdAt;
 }
