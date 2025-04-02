@@ -49,9 +49,6 @@ public class CompanyController {
 
     @DeleteMapping("/companies/{id}")
     public ResponseEntity<String> deleteCompany(@PathVariable("id") long id) throws IdInvalidException {
-        if (id >= 1500) {
-            throw new IdInvalidException("id khong lon hon hoac bang 1500");
-        }
         this.companyService.handleDeleteCompany(id);
         return ResponseEntity.ok("id: " + id);
     }
