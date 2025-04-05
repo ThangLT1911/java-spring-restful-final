@@ -10,40 +10,24 @@ import vn.thanglt.jobhunter.util.SecurityUtil;
 import java.time.Instant;
 import java.util.List;
 
-@Table(name = "companies")
 @Entity
-@Setter
+@Table(name = "skills")
 @Getter
-public class Company {
+@Setter
+public class Skill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotBlank(message = "name không được để trống")
+    @NotBlank(message = "tên không được để trống")
     private String name;
-
-    @Column(columnDefinition = "MEDIUMTEXT")
-    private String description;
-
-    private String address;
-
-    private String logo;
-
     private Instant createdAt;
-
     private Instant updatedAt;
-
     private String createdBy;
-
     private String updatedBy;
-
-    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "skills")
     @JsonIgnore
-    List<User> users;
-
-    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
-    @JsonIgnore
-    List<Job> jobs;
+    private List<Job> jobs;
 
     @PrePersist
     public void handleBeforeCreate() {
@@ -59,7 +43,6 @@ public class Company {
         this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent()
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
-
         this.updatedAt = Instant.now();
     }
 }
