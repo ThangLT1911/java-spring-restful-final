@@ -1,41 +1,53 @@
 package vn.thanglt.jobhunter.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.thanglt.jobhunter.util.SecurityUtil;
+import vn.thanglt.jobhunter.util.constant.StatusEnum;
 
 import java.time.Instant;
-import java.util.List;
 
 @Entity
-@Table(name = "skills")
+@Table(name = "resumes")
 @Getter
 @Setter
-public class Skill {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Resume {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotBlank(message = "tên không được để trống")
-    private String name;
+    @NotBlank(message = "email không được để trống")
+    private String email;
+
+    @NotBlank(message = "url không được để trống (upload cv chưa thành công)")
+    private String url;
+
+    @Enumerated(EnumType.STRING)
+    private StatusEnum status;
     private Instant createdAt;
     private Instant updatedAt;
     private String createdBy;
     private String updatedBy;
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "skills")
-    @JsonIgnore
-    private List<Job> jobs;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "job_id")
+    private Job job;
 
     @PrePersist
     public void handleBeforeCreate() {
         this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent()
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
-
         this.createdAt = Instant.now();
     }
 
@@ -44,6 +56,7 @@ public class Skill {
         this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent()
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
+
         this.updatedAt = Instant.now();
     }
 }

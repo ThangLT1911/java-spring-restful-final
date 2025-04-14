@@ -1,7 +1,6 @@
 package vn.thanglt.jobhunter.service;
 
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -39,17 +38,16 @@ public class SkillService {
 
     public Skill handleUpdateSkill(Skill skill) throws IdInvalidException {
         Skill currentSkill = this.handleGetSkillById(skill.getId());
-        if(currentSkill != null) {
+        if (currentSkill != null) {
             currentSkill.setName(skill.getName());
             currentSkill.setUpdatedAt(skill.getUpdatedAt());
             currentSkill.setUpdatedBy(skill.getUpdatedBy());
 
             currentSkill = this.skillRepository.save(currentSkill);
-        } else {
-            throw new IdInvalidException("Id " + skill.getId() + " khong ton tai");
+            return currentSkill;
         }
+        return null;
 
-        return currentSkill;
     }
 
     public ResultPaginationDTO handleGetAllSkill(Specification<Skill> specification, Pageable pageable) {

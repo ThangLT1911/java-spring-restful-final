@@ -13,6 +13,8 @@ import vn.thanglt.jobhunter.service.CompanyService;
 import vn.thanglt.jobhunter.util.annotation.ApiMessage;
 import vn.thanglt.jobhunter.util.error.IdInvalidException;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("api/v1")
 public class CompanyController {
@@ -28,11 +30,11 @@ public class CompanyController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newCompany);
     }
 
-    @GetMapping("/companies/{id}")
-    public ResponseEntity<Company> getCompany(@PathVariable("id") long id) {
-        Company getCompany = this.companyService.handleGetCompanyById(id);
-        return ResponseEntity.ok(getCompany);
-    }
+//    @GetMapping("/companies/{id}")
+//    public ResponseEntity<Company> getCompany(@PathVariable("id") long id) {
+//        Company getCompany = this.companyService.handleGetCompanyById(id);
+//        return ResponseEntity.ok(getCompany);
+//    }
 
     @GetMapping("/companies")
     @ApiMessage("Get all company")
@@ -51,5 +53,15 @@ public class CompanyController {
     public ResponseEntity<String> deleteCompany(@PathVariable("id") long id) throws IdInvalidException {
         this.companyService.handleDeleteCompany(id);
         return ResponseEntity.ok("id: " + id);
+    }
+
+    @GetMapping("companies/{id}")
+    @ApiMessage("Fetch company by id")
+    public ResponseEntity<Company> getCompanyById(@PathVariable("id") long id) throws IdInvalidException {
+        Optional<Company> companyOptional = this.companyService.findById(id);
+        if (companyOptional.isEmpty()) {
+            throw new IdInvalidException("Id khong ton tai");
+        }
+        return ResponseEntity.ok().body(companyOptional.get());
     }
 }

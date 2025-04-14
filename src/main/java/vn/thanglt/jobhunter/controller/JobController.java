@@ -33,8 +33,7 @@ public class JobController {
         if (isJobExist) {
             throw new IdInvalidException("Job " + job.getName() + " da ton tai");
         }
-        ResCreateJobDTO newJob = this.jobService.handleCreateJob(job);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newJob);
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.jobService.handleCreateJob(job));
     }
 
     @PutMapping("/jobs")
@@ -44,7 +43,7 @@ public class JobController {
         if (currentJob.isEmpty()) {
             throw new IdInvalidException("Job not found");
         }
-        return ResponseEntity.ok().body(this.jobService.handleUpdateJob(job));
+        return ResponseEntity.ok().body(this.jobService.handleUpdateJob(job, currentJob.get()));
     }
 
     @DeleteMapping("/jobs/{id}")

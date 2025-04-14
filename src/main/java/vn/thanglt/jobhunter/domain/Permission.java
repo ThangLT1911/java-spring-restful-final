@@ -11,31 +11,39 @@ import java.time.Instant;
 import java.util.List;
 
 @Entity
-@Table(name = "skills")
+@Table(name = "permissions")
 @Getter
 @Setter
-public class Skill {
+public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotBlank(message = "tên không được để trống")
+    @NotBlank(message = "name khong duoc de trong")
     private String name;
+
+    @NotBlank(message = "apiPath khong duoc de trong")
+    private String apiPath;
+
+    @NotBlank(message = "method khong duoc de trong")
+    private String method;
+
+    @NotBlank(message = "module khong duoc de trong")
+    private String module;
     private Instant createdAt;
     private Instant updatedAt;
     private String createdBy;
     private String updatedBy;
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "skills")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "permissions")
     @JsonIgnore
-    private List<Job> jobs;
+    private List<Role> roles;
 
     @PrePersist
     public void handleBeforeCreate() {
         this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent()
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
-
         this.createdAt = Instant.now();
     }
 
@@ -44,6 +52,7 @@ public class Skill {
         this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent()
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
+
         this.updatedAt = Instant.now();
     }
 }
