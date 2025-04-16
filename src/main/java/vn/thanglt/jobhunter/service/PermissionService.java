@@ -1,13 +1,11 @@
 package vn.thanglt.jobhunter.service;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.thanglt.jobhunter.domain.Permission;
-import vn.thanglt.jobhunter.domain.Skill;
 import vn.thanglt.jobhunter.domain.response.ResultPaginationDTO;
 import vn.thanglt.jobhunter.repository.PermissionRepository;
 
@@ -25,6 +23,11 @@ public class PermissionService {
         return this.permissionRepository.existsByModuleAndApiPathAndMethod(permission.getModule(), permission.getApiPath(), permission.getMethod());
     }
 
+    public Permission fetchPermissionById(long id) {
+        Optional<Permission> permissionOptional = this.permissionRepository.findById(id);
+        return permissionOptional.orElse(null);
+    }
+
     public Permission handleCreatePermission(@Valid Permission permission) {
         return this.permissionRepository.save(permission);
     }
@@ -34,7 +37,7 @@ public class PermissionService {
         return permissionOptional.orElse(null);
     }
 
-    public Permission handleUpdatePermission(Permission permission) {
+    public Permission updatePermission(Permission permission) {
         Permission currentPermission = this.handleGetPermissionById(permission.getId());
         if (currentPermission != null) {
             currentPermission.setName(permission.getName());
@@ -72,5 +75,15 @@ public class PermissionService {
         rs.setMeta(meta);
         rs.setResult(pagePermission.getContent());
         return rs;
+    }
+
+    public void deletePermission(long id) {
+        // delete permission_role
+        Optional<Permission> permissionOptional = this.permissionRepository.findById(id);
+        Permission currentPermission = permissionOptional.get();
+        currentPermission.getRoles().forEach(role -> role.getPermissions().remove(currentPermission));
+
+        // delete permissions
+        this.permissionRepository.delete(currentPermission);
     }
 }

@@ -15,8 +15,6 @@ import vn.thanglt.jobhunter.service.JobService;
 import vn.thanglt.jobhunter.util.annotation.ApiMessage;
 import vn.thanglt.jobhunter.util.error.IdInvalidException;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("api/v1")
 public class JobController {
@@ -39,18 +37,18 @@ public class JobController {
     @PutMapping("/jobs")
     @ApiMessage("Update job")
     public ResponseEntity<ResUpdateJobDTO> updateJob(@Valid @RequestBody Job job) throws IdInvalidException {
-        Optional<Job> currentJob = this.jobService.fetchJobById(job.getId());
-        if (currentJob.isEmpty()) {
+        Job currentJob = this.jobService.fetchJobById(job.getId());
+        if (currentJob == null) {
             throw new IdInvalidException("Job not found");
         }
-        return ResponseEntity.ok().body(this.jobService.handleUpdateJob(job, currentJob.get()));
+        return ResponseEntity.ok().body(this.jobService.handleUpdateJob(job, currentJob));
     }
 
     @DeleteMapping("/jobs/{id}")
     @ApiMessage("Delete a skill")
     public ResponseEntity<Void> deleteJob(@PathVariable("id") long id) throws IdInvalidException {
-        Optional<Job> currentJob = this.jobService.fetchJobById(id);
-        if (currentJob.isEmpty()) {
+        Job currentJob = this.jobService.fetchJobById(id);
+        if (currentJob == null) {
             throw new IdInvalidException("Job not found");
         }
         this.jobService.deleteJob(id);
@@ -60,11 +58,11 @@ public class JobController {
     @GetMapping("/jobs/{id}")
     @ApiMessage("Get Skill")
     public ResponseEntity<Job> getJob(@PathVariable("id") long id) throws IdInvalidException {
-        Optional<Job> getJob = this.jobService.fetchJobById(id);
-        if (getJob.isEmpty()) {
-            throw new IdInvalidException("Job khong ton tai");
+        Job currentJob = this.jobService.fetchJobById(id);
+        if (currentJob == null) {
+            throw new IdInvalidException("Job not found");
         }
-        return ResponseEntity.ok().body(getJob.get());
+        return ResponseEntity.ok().body(currentJob);
     }
 
     @GetMapping("/jobs")

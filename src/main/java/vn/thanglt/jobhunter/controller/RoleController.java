@@ -3,10 +3,7 @@ package vn.thanglt.jobhunter.controller;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.thanglt.jobhunter.domain.Role;
 import vn.thanglt.jobhunter.service.RoleService;
 import vn.thanglt.jobhunter.util.annotation.ApiMessage;
@@ -30,5 +27,20 @@ public class RoleController {
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(this.roleService.createRole(role));
+    }
+
+    @PutMapping("/roles")
+    @ApiMessage("Update role")
+    public ResponseEntity<Role> updateRole(@Valid @RequestBody Role role) throws IdInvalidException {
+        Role currentRole = this.roleService.fetchRoleById(role.getId());
+        if (currentRole == null) {
+            throw new IdInvalidException("Role not found");
+        }
+
+        boolean isRoleExist = this.roleService.existByName(role.getName());
+        if (isRoleExist) {
+            throw new IdInvalidException("Role " + role.getName() + " da ton tai");
+        }
+        return ResponseEntity.ok().body(this.roleService.updateRole(role));
     }
 }

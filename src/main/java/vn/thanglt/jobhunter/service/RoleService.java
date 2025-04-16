@@ -24,19 +24,35 @@ public class RoleService {
         return this.roleRepository.existsByName(name);
     }
 
-    public Optional<Role> fetchRoleById(long id) {
-        return this.roleRepository.findById(id);
+    public Role fetchRoleById(long id) {
+        Optional<Role> roleOptional = this.roleRepository.findById(id);
+        return roleOptional.orElse(null);
     }
 
     public Role createRole(Role role) {
         if (role.getPermissions() != null) {
-            List<Long> reqPermissions = role.getPermissions()
-                    .stream().map(x -> x.getId())
-                    .collect(Collectors.toList());
+            List<Long> reqPermissions = role.getPermissions().stream().map(Permission::getId).collect(Collectors.toList());
             List<Permission> dbPermissions = this.permissionRepository.findByIdIn(reqPermissions);
             role.setPermissions(dbPermissions);
         }
 
         return this.roleRepository.save(role);
+    }
+
+    public Role updateRole(Role role) {
+        // check role
+        Role roleDb = this.fetchRoleById(role.getId());
+        if (role.getPermissions() != null) {
+            List<Long> reqPermissions = role.getPermissions().stream().map(Permission::getId).collect(Collectors.toList());
+            List<Permission> dbPermission = this.permissionRepository.findByIdIn(reqPermissions);
+            roleDb.setPermissions(dbPermission);
+        }
+
+        roleDb.setName(role.getName());
+        roleDb.setDescription(role.getDescription());
+        roleDb.setActive(role.isActive());
+        roleDb.setPermissions(role.getPermissions());
+        roleDb = this.roleRepository.save(roleDb);
+        return roleDb;
     }
 }

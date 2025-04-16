@@ -6,6 +6,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.thanglt.jobhunter.domain.Company;
 import vn.thanglt.jobhunter.domain.Job;
+import vn.thanglt.jobhunter.domain.Role;
 import vn.thanglt.jobhunter.domain.Skill;
 import vn.thanglt.jobhunter.domain.response.ResultPaginationDTO;
 import vn.thanglt.jobhunter.domain.response.job.ResCreateJobDTO;
@@ -39,8 +40,9 @@ public class JobService {
         return this.companyRepository.existsById(id);
     }
 
-    public Optional<Job> fetchJobById(long id) {
-        return this.jobRepository.findById(id);
+    public Job fetchJobById(long id) {
+        Optional<Job> jobOptional = this.jobRepository.findById(id);
+        return jobOptional.orElse(null);
     }
 
     public ResCreateJobDTO handleCreateJob(Job job) {
